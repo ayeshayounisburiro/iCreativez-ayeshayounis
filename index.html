@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Plagiarism Shield | Advanced Simulator</title>
+  <!-- Google Fonts + Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #f0f4ff 0%, #e9eefa 100%);
+      padding: 2rem 1.5rem;
+      position: relative;
+    }
+
+    /* animated background abstract shapes */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, rgba(168,85,247,0.05) 100%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -10%;
+      right: -5%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(236,72,153,0.06) 0%, rgba(245,158,11,0.03) 100%);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* main card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      border-radius: 2rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 2rem 2rem 1rem 2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1E2A5E, #3B2E6D, #9B4D96);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero h1 i {
+      background: none;
+      color: #5B42F3;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      font-size: 2.2rem;
+    }
+
+    .sub {
+      color: #4a5568;
+      margin-top: 0.6rem;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    .input-panel {
+      padding: 0 2rem 2rem 2rem;
+    }
+
+    .textarea-wrapper {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      transition: all 0.2s;
+      border: 1px solid #e2e8f0;
+    }
+
+    textarea {
+      width: 100%;
+      border: none;
+      padding: 1.3rem 1.5rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      border-radius: 1.5rem;
+      background: transparent;
+      resize: vertical;
+      font-weight: 500;
+      color: #1e293b;
+      outline: none;
+    }
+
+    textarea:focus {
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.3);
+      border-radius: 1.5rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      border: none;
+      padding: 10px 20px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-primary {
+      background: linear-gradient(105deg, #4F46E5, #7C3AED);
+      color: white;
+      border: none;
+      box-shadow: 0 8px 18px rgba(79,70,229,0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(105deg, #4338ca, #6d28d9);
+      box-shadow: 0 15px 25px -10px rgba(79,70,229,0.4);
+    }
+
+    .btn-outline {
+      border: 1px solid #cbd5e1;
+      background: rgba(255,255,255,0.7);
+    }
+
+    .btn-outline:hover {
+      background: white;
+      border-color: #8b5cf6;
+      color: #5b21b6;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem 2rem 2rem 2rem;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.75);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.02);
+      border: 1px solid rgba(255,255,255,0.8);
+      transition: all 0.2s;
+    }
+
+    .plagiarism-meter {
+      text-align: center;
+    }
+
+    .score-circle {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 1rem;
+    }
+
+    .circular-chart {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .circle-bg {
+      stroke: #e2e8f0;
+      stroke-width: 12;
+      fill: none;
+    }
+
+    .circle-progress {
+      stroke: url(#gradScore);
+      stroke-width: 12;
+      fill: none;
+      stroke-dasharray: 314;
+      stroke-dashoffset: 314;
+      transition: stroke-dashoffset 0.8s ease-out;
+      stroke-linecap: round;
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .score-label {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .source-list {
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .source-item {
+      background: #f8fafc;
+      border-radius: 1rem;
+      padding: 0.8rem;
+      margin-bottom: 0.75rem;
+      border-left: 4px solid #818cf8;
+      transition: 0.1s;
+    }
+
+    .source-title {
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .similarity-badge {
+      background: #eef2ff;
+      padding: 4px 10px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .matched-phrases {
+      font-size: 0.75rem;
+      color: #475569;
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .phrase-tag {
+      background: white;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.7rem;
+    }
+
+    .info-note {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.75rem;
+      color: #5b6e8c;
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 1.6rem; }
+      .stats-grid { padding: 1rem; }
+      .input-panel { padding: 0 1rem 1.5rem 1rem; }
+    }
+
+    .loader-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .loader {
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 25px 40px black;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top: 4px solid #4F46E5;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="loader-overlay" id="loaderOverlay">
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>🔍 Scanning sources & matching patterns...</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="glass-card">
+    <div class="hero">
+      <h1><i class="fas fa-shield-alt"></i> Plagiarism Shield · Simulator</h1>
+      <p class="sub">Advanced similarity detection · Compare with academic reference library</p>
+    </div>
+
+    <div class="input-panel">
+      <div class="textarea-wrapper">
+        <textarea id="userText" rows="6" placeholder="📝 Paste your essay, article, or research content here... The system will compare it against 4 reference sources and compute real text similarity (word overlap)."></textarea>
+      </div>
+      <div class="toolbar">
+        <div class="btn-group">
+          <button class="btn btn-primary" id="checkBtn"><i class="fas fa-search"></i> Check Plagiarism</button>
+          <button class="btn btn-outline" id="resetBtn"><i class="fas fa-eraser"></i> Clear</button>
+          <button class="btn btn-outline" id="exampleBtn"><i class="fas fa-flask"></i> Try Example</button>
+        </div>
+        <div><i class="fas fa-database"></i> <span id="wordCount">0</span> words</div>
+      </div>
+    </div>
+
+    <!-- results area -->
+    <div class="stats-grid" id="resultsArea">
+      <div class="result-card plagiarism-meter">
+        <div class="score-circle">
+          <svg viewBox="0 0 120 120" class="circular-chart">
+            <defs>
+              <linearGradient id="gradScore" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4F46E5" />
+                <stop offset="100%" stop-color="#C084FC" />
+              </linearGradient>
+            </defs>
+            <circle class="circle-bg" cx="60" cy="60" r="50"></circle>
+            <circle class="circle-progress" id="progressCircle" cx="60" cy="60" r="50"></circle>
+          </svg>
+          <div class="score-text" id="plagiarismPercent">0%</div>
+        </div>
+        <div class="score-label">📊 Plagiarism Index</div>
+        <div id="originalityMessage" style="margin-top: 12px; font-weight: 500;">✨ Originality score: 100%</div>
+      </div>
+
+      <div class="result-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span><i class="fas fa-book-open"></i> <strong>Matched Sources</strong></span>
+          <span id="topMatchBadge" class="similarity-badge">Top match: —</span>
+        </div>
+        <div id="sourceListContainer" class="source-list">
+          <div style="color: #94a3b8; text-align: center; padding: 1rem;">Click "Check" to analyze</div>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div style="margin-bottom: 12px;"><i class="fas fa-chart-line"></i> <strong>Insights & Overview</strong></div>
+        <div id="insightsPanel">
+          <p style="font-size: 0.85rem;">• Real-time word overlap analysis against 4 reference documents.<br>• Jaccard similarity coefficient (word-based).<br>• Detects common phrases & matched keywords.</p>
+          <div id="extraInsight" style="margin-top: 12px; font-size: 0.85rem; background: #f1f5f9; border-radius: 16px; padding: 8px 12px;"></div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <i class="fas fa-robot"></i> AI-powered simulation · compares with built-in academic corpus (AI, Climate, Internet, Ethics) · real similarity algorithm
+    </footer>
+  </div>
+</div>
+
+<script>
+  // ---------- REFERENCE SOURCES (Corpus) ----------
+  const SOURCES = [
+    {
+      id: 1,
+      title: "📘 Artificial Intelligence & Modern Tech",
+      text: "Artificial intelligence is transforming industries worldwide. Machine learning algorithms help analyze vast amounts of data. AI can be used in healthcare, finance, and transportation. Deep learning models improve decision making and automation."
+    },
+    {
+      id: 2,
+      title: "🌍 Climate Change & Global Impact",
+      text: "Climate change poses a major threat to our planet. Rising global temperatures lead to extreme weather events, melting ice caps, and rising sea levels. Urgent action is necessary to reduce carbon emissions and adopt renewable energy."
+    },
+    {
+      id: 3,
+      title: "🌐 History of the Internet",
+      text: "The Internet revolutionized communication and information sharing. From the early days of ARPANET to the modern web, connectivity has changed how we live, work, and interact. Digital transformation continues to reshape societies."
+    },
+    {
+      id: 4,
+      title: "⚖️ Academic Integrity & Plagiarism",
+      text: "Plagiarism is using someone else's work without proper attribution. Ethical writing requires citing sources, paraphrasing correctly, and respecting intellectual property. Universities enforce strict policies against academic dishonesty."
+    }
+  ];
+
+  // Helper: tokenize (words, lowercased, remove punctuation)
+  function tokenize(text) {
+    if (!text.trim()) return [];
+    return text.toLowerCase().match(/\b[\w\u00C0-\u024F]+\b/g) || [];
+  }
+
+  // Jaccard similarity between two word arrays
+  function jaccardSimilarity(tokensA, tokensB) {
+    if (tokensA.length === 0 && tokensB.length === 0) return 0;
+    const setA = new Set(tokensA);
+    const setB = new Set(tokensB);
+    const intersection = new Set([...setA].filter(x => setB.has(x)));
+    const union = new Set([...setA, ...setB]);
+    return intersection.size / union.size;
+  }
+
+  // get top common words (max 5)
+  function getCommonWords(tokensA, tokensB) {
+    const freq = new Map();
+    const setB = new Set(tokensB);
+    for (let w of tokensA) {
+      if (setB.has(w)) {
+        freq.set(w, (freq.get(w) || 0) + 1);
+      }
+    }
+    const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]);
+    return sorted.slice(0, 5).map(entry => entry[0]);
+  }
+
+  // Update UI with results
+  function updateResults(userText) {
+    const userTokens = tokenize(userText);
+    const wordCount = userTokens.length;
+    document.getElementById('wordCount').innerText = wordCount;
+
+    if (userTokens.length === 0) {
+      // reset display with zeros
+      document.getElementById('plagiarismPercent').innerText = '0%';
+      document.getElementById('progressCircle').style.strokeDasharray = "314";
+      document.getElementById('progressCircle').style.strokeDashoffset = "314";
+      document.getElementById('originalityMessage').innerHTML = '✨ Originality score: 100%';
+      document.getElementById('topMatchBadge').innerHTML = 'Top match: —';
+      document.getElementById('sourceListContainer').innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 1rem;">No text to analyze</div>';
+      document.getElementById('extraInsight').innerHTML = '';
+      return;
+    }
+
+    // compute similarity for each source
+    const results = SOURCES.map(source => {
+      const sourceTokens = tokenize(source.text);
+      const similarity = jaccardSimilarity(userTokens, sourceTokens);
+      const common = getCommonWords(userTokens, sourceTokens);
+      return {
+        ...source,
+        similarity: similarity,
+        commonWords: common,
+        percent: Math.round(similarity * 100)
+      };
+    });
+
+    // sort desc similarity
+    results.sort((a,b) => b.similarity - a.similarity);
+    const maxSimilarity = results[0].similarity;
+    const plagiarismPercent = Math.round(maxSimilarity * 100);
+    const originality = 100 - plagiarismPercent;
+
+    // animate circle progress (circumference = 2*pi*50 = 314.159)
+    const circumference = 314;
+    const offset = circumference - (plagiarismPercent / 100) * circumference;
+    const circle = document.getElementById('progressCircle');
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = offset;
+    document.getElementById('plagiarismPercent').innerText = plagiarismPercent + '%';
+    
+    let originalityMsg = '';
+    if (originality >= 80) originalityMsg = '✅ Excellent! High originality.';
+    else if (originality >= 60) originalityMsg = '⚠️ Moderate similarity, review flagged sources.';
+    else originalityMsg = '🔴 High plagiarism risk! Consider rewriting.';
+    document.getElementById('originalityMessage').innerHTML = `✨ Originality score: ${originality}%<br><span style="font-size:0.75rem;">${originalityMsg}</span>`;
+    
+    // top match badge
+    document.getElementById('topMatchBadge').innerHTML = `🏆 Top: ${results[0].title.substring(0, 28)} (${results[0].percent}%)`;
+
+    // build source list html
+    let sourcesHtml = '';
+    results.forEach(src => {
+      const matchPhrases = src.commonWords.length ? src.commonWords.map(w => `<span class="phrase-tag">${w}</span>`).join('') : '<span class="phrase-tag">no strong keyword overlap</span>';
+      sourcesHtml += `
+        <div class="source-item">
+          <div class="source-title">
+            <span>${src.title}</span>
+            <span class="similarity-badge" style="background:${src.percent > 40 ? '#fce7f3' : '#e0f2fe'};">${src.percent}% match</span>
+          </div>
+          <div class="matched-phrases">
+            <i class="fas fa-tag" style="font-size:10px;"></i> ${matchPhrases}
+          </div>
+          <div style="font-size:0.7rem; margin-top:6px;"><i class="far fa-copy"></i> overlap: ${src.commonWords.length} unique keywords</div>
+        </div>
+      `;
+    });
+    document.getElementById('sourceListContainer').innerHTML = sourcesHtml;
+    
+    // insights extra
+    let insightText = '';
+    if (maxSimilarity > 0.45) {
+      insightText = `🔍 Highest similarity with "${results[0].title}". Phrases like "${results[0].commonWords.slice(0,3).join(', ')}" appear in both. Consider paraphrasing or citation.`;
+    } else if (maxSimilarity > 0.2) {
+      insightText = `📝 Minor textual overlap detected. Check the matched keywords above for accidental similarities.`;
+    } else {
+      insightText = `🎉 Very low similarity! Your text appears distinct from reference library. Great work.`;
+    }
+    if (userTokens.length < 15) insightText += ` (short text — similarity might be less reliable)`;
+    document.getElementById('extraInsight').innerHTML = `<i class="fas fa-lightbulb"></i> ${insightText}`;
+  }
+
+  // main checking with loader simulation (for realistic UX)
+  function performCheck() {
+    const userText = document.getElementById('userText').value;
+    if (!userText.trim()) {
+      // show gentle alert style but using UI feedback
+      document.getElementById('sourceListContainer').innerHTML = '<div style="background:#fff0f0; border-radius:1rem; padding:1rem; text-align:center;">⚠️ Please enter some text to analyze.</div>';
+      document.getElementById('wordCount').innerText = '0';
+      document.getElementById('plagiarismPercent').innerText = '0%';
+      document.getElementById('progressCircle').style.strokeDashoffset = "314";
+      document.getElementById('originalityMessage').innerHTML = '✨ Originality score: 100%';
+      document.getElementById('topMatchBadge').innerHTML = 'Top match: —';
+      document.getElementById('extraInsight').innerHTML = '';
+      return;
+    }
+    
+    // show loader
+    const loader = document.getElementById('loaderOverlay');
+    loader.style.display = 'flex';
+    
+    // simulate slight delay for realism (also ensures smooth transition)
+    setTimeout(() => {
+      updateResults(userText);
+      loader.style.display = 'none';
+    }, 380);
+  }
+
+  // reset all fields
+  function resetAll() {
+    document.getElementById('userText').value = '';
+    document.getElementById('wordCount').innerText = '0';
+    const circle = document.getElementById('progressCircle');
+    circle.style.strokeDashoffset = "314";
+    document.getElementById('plagiarismPercent').innerText = '0%';
+    document.getElementById('originalityMessage').innerHTML = '✨ Originality score: 100%';
+    document.getElementById('topMatchBadge').innerHTML = 'Top match: —';
+    document.getElementById('sourceListContainer').innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 1rem;">Ready — paste content & hit check</div>';
+    document.getElementById('extraInsight').innerHTML = '';
+  }
+
+  // load example text that mixes several sources (showcases similarity)
+  function loadExample() {
+    const exampleText = `Artificial intelligence is reshaping healthcare and finance. Machine learning algorithms analyze huge datasets for better predictions. At the same time, climate change leads to rising temperatures and extreme weather events, requiring urgent renewable energy adoption. The internet changed global communication forever. Plagiarism remains a serious academic offense.`;
+    document.getElementById('userText').value = exampleText;
+    // automatically update word count and optionally trigger check?
+    const tokens = tokenize(exampleText);
+    document.getElementById('wordCount').innerText = tokens.length;
+    // but we don't auto-check - user can press check, but we can also auto-check for better demo
+    performCheck();  // directly simulate check after example load (great UX)
+  }
+
+  // Event listeners
+  document.getElementById('checkBtn').addEventListener('click', performCheck);
+  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('exampleBtn').addEventListener('click', loadExample);
+  
+  // real-time word count update (without full check)
+  const textarea = document.getElementById('userText');
+  textarea.addEventListener('input', function() {
+    const txt = this.value;
+    const tokens = tokenize(txt);
+    document.getElementById('wordCount').innerText = tokens.length;
+    // optional: reset results area if empty? but only visual count change
+    if (!txt.trim()) {
+      document.getElementById('sourceListContainer').innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 1rem;">Awaiting content...</div>';
+      document.getElementById('plagiarismPercent').innerText = '0%';
+      document.getElementById('progressCircle').style.strokeDashoffset = "314";
+      document.getElementById('originalityMessage').innerHTML = '✨ Originality score: 100%';
+      document.getElementById('topMatchBadge').innerHTML = 'Top match: —';
+      document.getElementById('extraInsight').innerHTML = '';
+    }
+  });
+
+  // initial circle setup
+  const circleInit = document.getElementById('progressCircle');
+  circleInit.style.strokeDasharray = "314";
+  circleInit.style.strokeDashoffset = "314";
+  // set default empty message
+  document.getElementById('sourceListContainer').innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 1rem;">📌 Enter text & click "Check Plagiarism"</div>';
+</script>
+</body>
+</html>
